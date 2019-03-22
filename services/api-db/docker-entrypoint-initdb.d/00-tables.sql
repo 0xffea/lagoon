@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS ssh_key (
   key_value     varchar(5000) NOT NULL,
   key_type      ENUM('ssh-rsa', 'ssh-ed25519') NOT NULL DEFAULT 'ssh-rsa',
   created       timestamp DEFAULT CURRENT_TIMESTAMP
-);
+) ROW_FORMAT=DYNAMIC ;
 
 CREATE TABLE IF NOT EXISTS user (
   id            int NOT NULL auto_increment PRIMARY KEY,
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS user (
   last_name     varchar(50),
   comment       text,
   gitlab_id     int
-);
+) ROW_FORMAT=DYNAMIC ;
 
 CREATE TABLE IF NOT EXISTS customer (
   id             int NOT NULL auto_increment PRIMARY KEY,
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS customer (
   comment        text,
   private_key    varchar(5000),
   created        timestamp DEFAULT CURRENT_TIMESTAMP
-);
+) ROW_FORMAT=DYNAMIC ;
 
 CREATE TABLE IF NOT EXISTS openshift (
   id              int NOT NULL auto_increment PRIMARY KEY,
@@ -37,21 +37,21 @@ CREATE TABLE IF NOT EXISTS openshift (
   ssh_host        varchar(300),
   ssh_port        varchar(50),
   created         timestamp DEFAULT CURRENT_TIMESTAMP
-);
+) ROW_FORMAT=DYNAMIC ;
 
 CREATE TABLE IF NOT EXISTS notification_rocketchat (
   id          int NOT NULL auto_increment PRIMARY KEY,
   name        varchar(50) UNIQUE,
   webhook     varchar(300),
   channel     varchar(300)
-);
+) ROW_FORMAT=DYNAMIC ;
 
 CREATE TABLE IF NOT EXISTS notification_slack (
   id          int NOT NULL auto_increment PRIMARY KEY,
   name        varchar(50) UNIQUE,
   webhook     varchar(300),
   channel     varchar(300)
-);
+) ROW_FORMAT=DYNAMIC ;
 
 
 CREATE TABLE IF NOT EXISTS project (
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS project (
   openshift_project_pattern        varchar(300),
   development_environments_limit   int DEFAULT NULL,
   created                          timestamp DEFAULT CURRENT_TIMESTAMP
-);
+) ROW_FORMAT=DYNAMIC ;
 
 CREATE TABLE IF NOT EXISTS environment (
   id                     int NOT NULL auto_increment PRIMARY KEY,
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS environment (
   created                timestamp DEFAULT CURRENT_TIMESTAMP,
   deleted                timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   UNIQUE KEY `project_name_deleted` (`project`,`name`, `deleted`)
-);
+) ROW_FORMAT=DYNAMIC ;
 
 CREATE TABLE IF NOT EXISTS environment_storage (
   id                       int NOT NULL auto_increment PRIMARY KEY,
@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS environment_storage (
   bytes_used               bigint,
   updated                  date,
   UNIQUE KEY `environment_persistent_storage_claim_updated` (`environment`,`persistent_storage_claim`, `updated`)
-);
+) ROW_FORMAT=DYNAMIC ;
 
 CREATE TABLE IF NOT EXISTS deployment (
   id           int NOT NULL auto_increment PRIMARY KEY,
@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS deployment (
   completed    datetime NULL,
   environment  int NOT NULL REFERENCES environment (id),
   remote_id    varchar(50) NULL
-);
+) ROW_FORMAT=DYNAMIC ;
 
 CREATE TABLE IF NOT EXISTS environment_backup (
   id                       int NOT NULL auto_increment PRIMARY KEY,
@@ -119,7 +119,7 @@ CREATE TABLE IF NOT EXISTS environment_backup (
   created                  timestamp,
   deleted                  timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   UNIQUE KEY `backup_id` (`backup_id`)
-);
+) ROW_FORMAT=DYNAMIC ;
 
 CREATE TABLE IF NOT EXISTS backup_restore (
   id                       int NOT NULL auto_increment PRIMARY KEY,
@@ -128,7 +128,7 @@ CREATE TABLE IF NOT EXISTS backup_restore (
   restore_location         varchar(300),
   created                  timestamp DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY `backup_id` (`backup_id`)
-);
+) ROW_FORMAT=DYNAMIC ;
 
 CREATE TABLE IF NOT EXISTS env_vars (
   id          int NOT NULL auto_increment PRIMARY KEY,
@@ -139,13 +139,13 @@ CREATE TABLE IF NOT EXISTS env_vars (
   environment int NULL REFERENCES environent (id),
   UNIQUE KEY `name_project` (`name`,`project`),
   UNIQUE KEY `name_environment` (`name`,`environment`)
-);
+) ROW_FORMAT=DYNAMIC ;
 
 CREATE TABLE IF NOT EXISTS environment_service (
   id          int NOT NULL auto_increment PRIMARY KEY,
   environment int NOT NULL REFERENCES environmnet (id),
   name        varchar(100) NOT NULL
-);
+) ROW_FORMAT=DYNAMIC ;
 
 CREATE TABLE IF NOT EXISTS task (
        id           int NOT NULL auto_increment PRIMARY KEY,
@@ -158,7 +158,7 @@ CREATE TABLE IF NOT EXISTS task (
        started      datetime NULL,
        completed    datetime NULL,
        remote_id    varchar(50) NULL
-);
+) ROW_FORMAT=DYNAMIC ;
 
 CREATE TABLE IF NOT EXISTS s3_file (
   id           int NOT NULL auto_increment PRIMARY KEY,
@@ -166,7 +166,7 @@ CREATE TABLE IF NOT EXISTS s3_file (
   s3_key       text NOT NULL,
   created      datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   deleted      datetime NOT NULL DEFAULT '0000-00-00 00:00:00'
-);
+) ROW_FORMAT=DYNAMIC ;
 
 -- Junction Tables
 
@@ -175,28 +175,28 @@ CREATE TABLE IF NOT EXISTS project_notification (
   pid      int REFERENCES project (id),
   type     ENUM('slack','rocketchat') NOT NULL,
   CONSTRAINT project_notification_pkey PRIMARY KEY (nid, pid, type)
-);
+) ROW_FORMAT=DYNAMIC ;
 
 CREATE TABLE IF NOT EXISTS user_ssh_key (
   usid int REFERENCES user (id),
   skid int REFERENCES ssh_key (id),
   CONSTRAINT user_ssh_key_pkey PRIMARY KEY (usid, skid)
-);
+) ROW_FORMAT=DYNAMIC ;
 
 CREATE TABLE IF NOT EXISTS customer_user (
   cid  int REFERENCES customer (id),
   usid int REFERENCES user (id),
   CONSTRAINT customer_user_pkey PRIMARY KEY (cid, usid)
-);
+) ROW_FORMAT=DYNAMIC ;
 
 CREATE TABLE IF NOT EXISTS project_user (
   pid int REFERENCES project (id),
   usid int REFERENCES user (id),
   CONSTRAINT project_user_pkey PRIMARY KEY (pid, usid)
-);
+) ROW_FORMAT=DYNAMIC ;
 
 CREATE TABLE IF NOT EXISTS task_file (
   tid int REFERENCES task (id),
   fid int REFERENCES file (id),
   CONSTRAINT task_file_pkey PRIMARY KEY (tid, fid)
-);
+) ROW_FORMAT=DYNAMIC ;
